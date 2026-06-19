@@ -1,90 +1,101 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5-Stack Draft Assistant</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>League 5-Stack Draft Assistant</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="hero">
     <div>
-      <p class="eyebrow">League of Legends Tool</p>
-      <h1>5-Stack Draft Assistant</h1>
-      <p>Speichere euer Team, pflege Champion Pools und lass dir passende Teamcomps für Pick & Ban vorschlagen.</p>
+      <p class="eyebrow">Ohne Login · Ohne Backend · Ohne Abo</p>
+      <h1>League 5-Stack Draft Assistant</h1>
+      <p class="lead">Speichert eure Spieler, Champion Pools und Tags. Danach simuliert ihr Bans und bekommt eine Teamcomp mit Erklärung.</p>
     </div>
-    <div class="hero-card">
-      <span id="patchBadge">Data Dragon lädt…</span>
-      <small>Keine Accounts. Keine Abos. Daten bleiben im Browser.</small>
-    </div>
+    <div class="patch" id="patchBadge">Data Dragon lädt…</div>
   </header>
 
-  <main>
-    <section class="panel">
-      <div class="section-title">
-        <h2>1. Spieler & Champion Pools</h2>
-        <button id="resetDemo" class="ghost">Demo laden</button>
+  <main class="layout">
+    <section class="card wide">
+      <div class="section-head">
+        <div>
+          <h2>1. Team anlegen</h2>
+          <p>Jeder Spieler bekommt Rolle und Champion Pool.</p>
+        </div>
+        <button id="resetDemo" class="secondary">Demo-Daten laden</button>
       </div>
       <div id="players" class="players"></div>
     </section>
 
-    <section class="panel two-col">
-      <div>
-        <h2>2. Pick & Ban</h2>
-        <p class="hint">Gebannte Champions werden aus Vorschlägen entfernt. Gepickte Champions werden bevorzugt bewertet.</p>
-        <div class="draft-grid">
-          <label>Enemy Bans <textarea id="enemyBans" placeholder="z.B. Yasuo, Blitzcrank, Jinx"></textarea></label>
-          <label>Unsere Bans <textarea id="allyBans" placeholder="z.B. Malphite, Zed"></textarea></label>
-          <label>Bereits gepickte Champions <textarea id="lockedPicks" placeholder="z.B. Orianna"></textarea></label>
-          <label>Comp-Ziel
-            <select id="compGoal">
-              <option value="balanced">Balanced</option>
-              <option value="engage">Engage / Teamfight</option>
-              <option value="poke">Poke / Siege</option>
-              <option value="scaling">Scaling</option>
-              <option value="pick">Pick / Catch</option>
-              <option value="frontline">Frontline / Peel</option>
-            </select>
-          </label>
-        </div>
-        <button id="suggestBtn" class="primary">Teamcomp vorschlagen</button>
-      </div>
-      <aside class="info-box">
-        <h3>Wie bewertet die App?</h3>
-        <p>Sie prüft Comfort-Level, Rollen, Damage-Balance, Frontline, Engage, CC, Scaling und eure Wunsch-Comp.</p>
-        <p>Die Champion-Typen pflegst du selbst. Das ist genauer als eine starre Meta-Liste.</p>
-      </aside>
+    <section class="card">
+      <h2>Champion hinzufügen</h2>
+      <label>Spieler</label>
+      <select id="playerSelect"></select>
+
+      <label>Champion</label>
+      <input id="championSearch" list="championList" placeholder="z. B. Orianna" />
+      <datalist id="championList"></datalist>
+
+      <label>Comfort: <span id="comfortOut">4</span>/5</label>
+      <input id="comfort" type="range" min="1" max="5" value="4" />
+
+      <label>Tags</label>
+      <div id="tagPicker" class="tag-picker"></div>
+
+      <button id="addChampion">Champion speichern</button>
     </section>
 
-    <section class="panel">
+    <section class="card">
+      <h2>2. Pick/Ban</h2>
+      <p>Trage Champions ein, die nicht verfügbar sind.</p>
+
+      <label>Gebannte Champions</label>
+      <textarea id="bans" placeholder="z. B. Rell, Orianna, Jinx"></textarea>
+
+      <label>Schon gepickte Champions</label>
+      <textarea id="picked" placeholder="z. B. Ahri"></textarea>
+
+      <label>Comp-Fokus</label>
+      <select id="focus">
+        <option value="balanced">Ausgeglichen</option>
+        <option value="teamfight">Teamfight</option>
+        <option value="pick">Pick / Catch</option>
+        <option value="poke">Poke</option>
+        <option value="scaling">Scaling</option>
+        <option value="dive">Dive</option>
+      </select>
+
+      <button id="suggestBtn">Teamcomp vorschlagen</button>
+    </section>
+
+    <section class="card wide result-card">
       <h2>3. Vorschlag</h2>
-      <div id="result" class="result empty">Noch kein Vorschlag. Erst Team pflegen, dann simulieren.</div>
-    </section>
-
-    <section class="panel disclaimer">
-      <h2>Riot Hinweis</h2>
-      <p>This project is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</p>
+      <div id="result" class="result empty">Noch kein Vorschlag. Erstellt Pools und klickt dann auf „Teamcomp vorschlagen”.</div>
     </section>
   </main>
 
+  <footer>
+    <p>Dieses Projekt ist nicht von Riot Games unterstützt. Riot Games, League of Legends und alle zugehörigen Eigenschaften gehören Riot Games, Inc.</p>
+  </footer>
+
   <template id="playerTemplate">
     <article class="player-card">
-      <div class="row">
-        <input class="player-name" placeholder="Spielername" />
+      <div class="player-top">
+        <input class="player-name" />
         <select class="player-role">
-          <option>Top</option><option>Jungle</option><option>Mid</option><option>ADC</option><option>Support</option>
+          <option>Top</option>
+          <option>Jungle</option>
+          <option>Mid</option>
+          <option>ADC</option>
+          <option>Support</option>
+          <option>Fill</option>
         </select>
       </div>
-      <label>Champion hinzufügen</label>
-      <div class="champ-add">
-        <input class="champ-search" list="championList" placeholder="Champion suchen" />
-        <select class="comfort"><option value="5">Comfort 5</option><option value="4">Comfort 4</option><option value="3">Comfort 3</option><option value="2">Comfort 2</option><option value="1">Comfort 1</option></select>
-        <button class="add-champ">+</button>
-      </div>
-      <div class="tags"></div>
+      <div class="pool"></div>
     </article>
   </template>
-  <datalist id="championList"></datalist>
+
   <script src="app.js"></script>
 </body>
 </html>
