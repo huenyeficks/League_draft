@@ -1,52 +1,43 @@
 # League 5-Stack Draft Assistant
 
-Eine kleine Web-App für euren 5er-Stack.
+Kostenloses Starter-Projekt ohne Login, Backend oder Abo.
 
-## Features
-
-- 5 Spieler mit Rollen
-- Champion Pool pro Spieler
-- Tags wie Tank, Engage, AP, AD, Scaling, Peel
-- Pick/Ban-Eingabe
-- Teamcomp-Vorschlag mit Score und Erklärung
-- Champion-Icons über Riot Data Dragon
-- Speicherung lokal im Browser über localStorage
-- Kein Login, kein Backend, kein Abo
-
-## Starten
+## Start
 
 1. ZIP entpacken
 2. Ordner in VS Code öffnen
-3. `index.html` im Browser öffnen
+3. `index.html` öffnen
 
-Besser in VS Code:
+Besser: VS Code Extension **Live Server** installieren und `index.html` damit starten.
 
-1. Erweiterung **Live Server** installieren
-2. Rechtsklick auf `index.html`
-3. **Open with Live Server** klicken
+## Was gefixt ist
 
-## GitHub Pages
+- Buttons sind sofort nutzbar, auch wenn Data Dragon langsam lädt.
+- Data Dragon hat 6 Sekunden Timeout.
+- Wenn Data Dragon nicht erreichbar ist, läuft die App im Offline-Modus ohne Icons weiter.
+- Der JavaScript-Syntaxfehler im Ban/Pick-Parser ist behoben.
 
-1. Neues GitHub Repository erstellen
-2. Diese Dateien hochladen
-3. Repository Settings öffnen
-4. Pages aktivieren
-5. Branch `main` und Ordner `/root` wählen
+## Dateien
 
-## Vercel
+- `index.html` – Struktur der Seite
+- `style.css` – Design
+- `app.js` – Logik, Speicherung, Draft-Vorschlag, Data Dragon
 
-1. Bei Vercel mit GitHub anmelden
-2. Repository importieren
-3. Deploy klicken
+## Hosting kostenlos
+
+### GitHub Pages
+
+Repo erstellen, Dateien hochladen, unter Settings → Pages aktivieren.
+
+### Vercel
+
+GitHub Repo verbinden. Vercel erkennt die statische Seite automatisch.
 
 ## Eigene Domain
 
-Du kannst die Domain später bei GitHub Pages oder Vercel verbinden.
-Die App selbst braucht kein Abo. Nur die Domain kostet meistens Geld.
+Eine Domain kostet meist extra. Die App selbst braucht kein Abo.
 
 ## Riot Hinweis
 
-Diese App nutzt nur Data Dragon Static Data von Riot.
-Es wird kein Riot API-Key genutzt.
-
+Dieses Projekt nutzt Riot Data Dragon für statische Championdaten und Icons. Es nutzt keinen Riot API-Key.
 Dieses Projekt ist nicht von Riot Games unterstützt. Riot Games, League of Legends und alle zugehörigen Eigenschaften gehören Riot Games, Inc.

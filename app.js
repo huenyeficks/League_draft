@@ -22,9 +22,9 @@ async function init() {
   loadState();
   renderTags();
   renderPlayers();
-  await loadDataDragon();
-  renderPlayers();
   bindEvents();
+  // Data Dragon lädt im Hintergrund. So bleiben alle Knöpfe sofort nutzbar.
+  loadDataDragon().then(renderPlayers);
 }
 
 function bindEvents() {
@@ -40,9 +40,9 @@ function bindEvents() {
 
 async function loadDataDragon() {
   try {
-    const versions = await fetch('https://ddragon.leagueoflegends.com/api/versions.json').then(r => r.json());
+    const versions = await fetchJsonWithTimeout('https://ddragon.leagueoflegends.com/api/versions.json', 6000);
     version = versions[0];
-    const data = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/de_DE/champion.json`).then(r => r.json());
+    const data = await fetchJsonWithTimeout(`https://ddragon.leagueoflegends.com/cdn/${version}/data/de_DE/champion.json`, 6000);
     champions = Object.values(data.data).map(c => ({
       id: c.id,
       key: c.key,
@@ -53,8 +53,27 @@ async function loadDataDragon() {
     $('#patchBadge').textContent = `Data Dragon Patch ${version}`;
   } catch (error) {
     console.error(error);
-    $('#patchBadge').textContent = 'Data Dragon nicht erreichbar';
+    $('#patchBadge').textContent = 'Offline-Modus: Icons später';
+    champions = fallbackChampions();
+    $('#championList').innerHTML = champions.map(c => `<option value="${escapeHtml(c.name)}"></option>`).join('');
   }
+}
+
+async function fetchJsonWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function fallbackChampions() {
+  const names = ["Aatrox", "Ahri", "Akali", "Alistar", "Amumu", "Anivia", "Annie", "Aphelios", "Ashe", "Aurelion Sol", "Azir", "Bard", "Blitzcrank", "Brand", "Braum", "Caitlyn", "Camille", "Cassiopeia", "Cho'Gath", "Corki", "Darius", "Diana", "Draven", "Ekko", "Elise", "Evelynn", "Ezreal", "Fiora", "Fizz", "Galio", "Gangplank", "Garen", "Gnar", "Gragas", "Graves", "Gwen", "Hecarim", "Heimerdinger", "Illaoi", "Irelia", "Ivern", "Janna", "Jarvan IV", "Jax", "Jayce", "Jhin", "Jinx", "Kai'Sa", "Kalista", "Karma", "Karthus", "Kassadin", "Katarina", "Kayle", "Kayn", "Kennen", "Kha'Zix", "Kindred", "Kled", "Kog'Maw", "LeBlanc", "Lee Sin", "Leona", "Lillia", "Lissandra", "Lucian", "Lulu", "Lux", "Malphite", "Malzahar", "Maokai", "Master Yi", "Milio", "Miss Fortune", "Mordekaiser", "Morgana", "Naafiri", "Nami", "Nasus", "Nautilus", "Neeko", "Nidalee", "Nilah", "Nocturne", "Nunu & Willump", "Olaf", "Orianna", "Ornn", "Pantheon", "Poppy", "Pyke", "Qiyana", "Quinn", "Rakan", "Rammus", "Rek'Sai", "Rell", "Renata Glasc", "Renekton", "Rengar", "Riven", "Rumble", "Ryze", "Samira", "Sejuani", "Senna", "Seraphine", "Sett", "Shaco", "Shen", "Shyvana", "Singed", "Sion", "Sivir", "Skarner", "Sona", "Soraka", "Swain", "Sylas", "Syndra", "Tahm Kench", "Taliyah", "Talon", "Taric", "Teemo", "Thresh", "Tristana", "Trundle", "Tryndamere", "Twisted Fate", "Twitch", "Udyr", "Urgot", "Varus", "Vayne", "Veigar", "Vel'Koz", "Vex", "Vi", "Viego", "Viktor", "Vladimir", "Volibear", "Warwick", "Wukong", "Xayah", "Xerath", "Xin Zhao", "Yasuo", "Yone", "Yorick", "Yuumi", "Zac", "Zed", "Zeri", "Ziggs", "Zilean", "Zoe", "Zyra"];
+  return names.map(name => ({ id: name, key: name, name, image: '' })).sort((a, b) => a.name.localeCompare(b.name, 'de'));
 }
 
 function renderTags() {
@@ -267,8 +286,7 @@ function champ(name, comfort, tags) { return { name, comfort, tags }; }
 function updatePlayer(index, patch) { state.players[index] = { ...state.players[index], ...patch }; saveState(); renderPlayers(); }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function loadState() { try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || state; } catch { state = { players: defaultPlayers() }; } }
-function parseChampions(text) { return text.split(/[,
-;]/).map(s => s.trim()).filter(Boolean); }
+function parseChampions(text) { return text.split(/[,;\n]/).map(s => s.trim()).filter(Boolean); }
 function normalize(text) { return String(text).toLowerCase().replace(/[^a-z0-9]/g, ''); }
 function findChampion(name) { return champions.find(c => normalize(c.name) === normalize(name)); }
 function clampScore(count) { return Math.min(100, count * 34); }
